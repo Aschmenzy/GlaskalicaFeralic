@@ -22,7 +22,10 @@ export default function Index() {
 
   return (
     <TouchableWithoutFeedback
-      onPress={() => router.push("../pages/homeScreen")}
+    onPress={() => {
+      console.log('TouchableWithoutFeedback pressed');
+      router.push("../pages/homeScreen");
+    }}
     >
       <ImageBackground
         source={require("../assets/images/greetingScreenPozadina.jpg")}
