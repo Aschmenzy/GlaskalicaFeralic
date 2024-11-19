@@ -1,4 +1,10 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  ImageBackground,
+} from "react-native";
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useRouter } from "expo-router";
@@ -15,12 +21,18 @@ export default function Index() {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={() => router.push("/HomeScreen")}>
-      <View style={styles.container}>
-        <Text style={styles.tekst}>
-          Tu ce ic slika kad je ti i nato najdete umisto bile pozadine
-        </Text>
-      </View>
+    <TouchableWithoutFeedback
+      onPress={() => router.push("../pages/homeScreen")}
+    >
+      <ImageBackground
+        source={require("../assets/images/greetingScreenPozadina.jpg")}
+        style={styles.container}
+      >
+        <View style={styles.container}>
+          <Text style={styles.tekst}>FERALIĆ tu cemo stavbi njihov logo</Text>
+          <Text style={styles.tekst}>dodirni za početak</Text>
+        </View>
+      </ImageBackground>
     </TouchableWithoutFeedback>
   );
 }
