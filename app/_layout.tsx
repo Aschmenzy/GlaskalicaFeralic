@@ -1,5 +1,14 @@
+import React from "react";
 import { Stack } from "expo-router";
+import Index from ".";
+import HomeScreen from "@/app/HomeScreen";
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false, // Hide the header
+      }}
+    ></Stack>
+  );
 }
