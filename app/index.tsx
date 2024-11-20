@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   ImageBackground,
+  Image,
 } from "react-native";
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -21,22 +22,23 @@ export default function Index() {
   }, []);
 
   return (
-    <TouchableWithoutFeedback
-    onPress={() => {
-      console.log('TouchableWithoutFeedback pressed');
-      router.push("../pages/homeScreen");
-    }}
+
+    <ImageBackground
+      source={require("../assets/images/greetingScreenPozadina.jpg")}
+      style={styles.container}
     >
-      <ImageBackground
-        source={require("../assets/images/greetingScreenPozadina.jpg")}
-        style={styles.container}
-      >
-        <View style={styles.container}>
-          <Text style={styles.tekst}>FERALIĆ tu cemo stavbi njihov logo</Text>
-          <Text style={styles.tekst}>dodirni za početak</Text>
-        </View>
-      </ImageBackground>
-    </TouchableWithoutFeedback>
+      <View style={styles.container}>
+        <Image source={require("../assets/images/logo.png")} style={styles.logo}></Image>
+        <TouchableWithoutFeedback onPress={() => {
+          console.log('TouchableWithoutFeedback pressed');
+          router.push("../pages/homeScreen");
+        }}>
+          <View style={styles.pocmiTekst}>
+            <Text style={styles.tekst}>Dotakni za početak</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+    </ImageBackground>
   );
 }
 
@@ -48,6 +50,29 @@ const styles = StyleSheet.create({
   },
   tekst: {
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 32, // Adjust for visibility
+    fontWeight: "bold", // Bold style
+    fontFamily: "sans-serif", // Use built-in sans-serif font
+    color: "black", // Ensure text color is visible
+    marginVertical: 20,
+  },
+  logo: {
+    height: 200,
+    width: 400,
+  },
+  pocmiTekst: {
+    width: 300, // Make the bubble a circle
+    height: 150,
+    justifyContent: "center", // Center text inside the bubble
+    alignItems: "center",
+    marginTop: 10,
+    backgroundColor: "rgba(173, 216, 230, 0.6)", // Light blue with transparency
+    borderRadius: 100, // Make it a perfect circle
+    borderWidth: 4, // Add a border for the outer bubble effect
+    borderColor: "rgba(173, 216, 230, 0.8)", // Slightly stronger blue for border
+    shadowColor: "#00BFFF", // Blue shadow for the glow effect
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 }, // Make shadow spread evenly
   },
 });

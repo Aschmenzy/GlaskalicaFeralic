@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
 
@@ -23,16 +24,37 @@ export default function HomeScreen() {
     setSelectedOption("");
   };
 
+    // Reset state when the screen is focused
+    useFocusEffect(
+      useCallback(() => {
+        setModalVisible(false);
+        setSelectedOption("");
+        console.log("HomeScreen reset on focus.");
+      }, [])
+    );
+
   const handleLevelSelect = (level: string) => {
-    console.log(`Selected ${selectedOption} with level ${level}`);
-    closeModal();
-    // Add navigation logic here based on the selected level and option
+    // Navigate to Challenge Screen with selected type and level
+    setModalVisible(false);
+    router.push({
+      pathname: "/pages/challengeScreen",
+      params: {
+        type: selectedOption,
+        level: level         
+      }
+    });
   };
+  
   return (
     <ImageBackground
       source={require("../assets/images/background.jpg")}
       style={styles.container}
     >
+      {/* Return Button */}
+      <TouchableOpacity onPress={() => router.back()} style={styles.returnButton}>
+                    <Text style={styles.returnButtonText}>Povratak</Text>
+      </TouchableOpacity>
+
       <View style={styles.textContainer}>
         <Text style={styles.tekst}>Izaberi broj nedostajućih</Text>
         <Text style={styles.tekst}>glasova</Text>
@@ -70,25 +92,40 @@ export default function HomeScreen() {
   <Text style={styles.modalTitle}>Odaberi težinu:</Text>
 
   {/* Buttons in a Grid */}
-  <View style={styles.modalButtonContainer}>
-    <TouchableOpacity style={styles.modalButton}>
-      <Text style={styles.modalButtonText}>3 glasa</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.modalButton}>
-      <Text style={styles.modalButtonText}>4 glasa (pravilna izmjena)</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.modalButton}>
-      <Text style={styles.modalButtonText}>4 glasa (konsonantske)</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.modalButton}>
-      <Text style={styles.modalButtonText}>5 glasa</Text>
-    </TouchableOpacity>
-  </View>
-
-  {/* Full-Width Green Button */}
-  <TouchableOpacity style={styles.fullWidthButton}>
-    <Text style={styles.modalButtonText}>5 glasa (konsonantske)</Text>
+<View style={styles.modalButtonContainer}>
+  <TouchableOpacity
+    onPress={() => handleLevelSelect("3_glasa")}
+    style={styles.modalButton}
+  >
+    <Text style={styles.modalButtonText}>3 glasa</Text>
   </TouchableOpacity>
+  <TouchableOpacity
+    onPress={() => handleLevelSelect("4_glasa_pravilna")}
+    style={styles.modalButton}
+  >
+    <Text style={styles.modalButtonText}>4 glasa (pravilna izmjena)</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    onPress={() => handleLevelSelect("4_glasa_konsonantske")}
+    style={styles.modalButton}
+  >
+    <Text style={styles.modalButtonText}>4 glasa (konsonantske)</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    onPress={() => handleLevelSelect("5_glasa")}
+    style={styles.modalButton}
+  >
+    <Text style={styles.modalButtonText}>5 glasa</Text>
+  </TouchableOpacity>
+</View>
+
+{/* Full-Width Green Button */}
+<TouchableOpacity
+  onPress={() => handleLevelSelect("5_glasa_konsonantske")}
+  style={styles.fullWidthButton}
+>
+  <Text style={styles.modalButtonText}>5 glasa (konsonantske)</Text>
+</TouchableOpacity>
 
   {/* Full-Width Red Close Button */}
   <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
@@ -156,7 +193,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 5,
   },
   modalButtonContainer: {
     flexDirection: "row",
@@ -167,26 +204,32 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     backgroundColor: "#4CAF50",
-    padding: 7,
+    padding: 10, // Adjust for consistent padding
     marginVertical: 5,
     borderRadius: 5,
-    width: "48%",
+    width: "48%", // Ensures buttons fit in the grid
+    height: 70, // Add consistent height for all buttons
     alignItems: "center",
+    justifyContent: "center", // Centers text vertically
   },
   fullWidthButton: {
     backgroundColor: "#4CAF50",
     padding: 10,
     marginVertical: 5,
     borderRadius: 5,
+    height: 50,
     width: "100%", 
     alignItems: "center",
   },
   modalButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16, // Reduce font size slightly if needed
+    textAlign: "center", // Center-align text
+    flexWrap: "wrap", // Allow text to wrap
   },
+  
   closeButton: {
-    marginTop: 20,
+    marginTop: 5,
     padding: 10,
     backgroundColor: "red",
     borderRadius: 5,
@@ -196,5 +239,18 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "white",
     fontSize: 18,
+  },// Styles for Return Button
+  returnButton: {
+      position: "absolute",
+      top: 20,
+      left: 20,
+      backgroundColor: "#FF5733",
+      padding: 10,
+      borderRadius: 10,
+  },
+  returnButtonText: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "bold",
   },
 });
