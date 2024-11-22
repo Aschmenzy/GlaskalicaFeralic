@@ -32,6 +32,7 @@ export default function Index() {
         <TouchableWithoutFeedback onPress={() => {
           console.log('TouchableWithoutFeedback pressed');
           router.push("../pages/homeScreen");
+          
         }}>
           <View style={styles.pocmiTekst}>
             <Text style={styles.tekst}>Dotakni za početak</Text>

@@ -5,7 +5,7 @@ export type Levels =
   | "5_glasa"
   | "5_glasa_konsonantske";
   
-export const  rijeci: Record<Levels, string[]> = {
+export const rijeci: Record<Levels, string[]> = {
     "3_glasa": [
         "bor",
         "bik",
