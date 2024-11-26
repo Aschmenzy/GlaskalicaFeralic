@@ -1,26 +1,23 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 
-interface ModalProps {
+interface VoiceLevelModalProps {
   visible: boolean;
-  onRequestClose: () => void;
+  onClose: () => void;
   onLevelSelect: (level: string) => void;
-  selectedOption: string;
 }
 
-const ModalComponent: React.FC<ModalProps> = ({ visible, onRequestClose, onLevelSelect }) => {
+const VoiceLevelModal: React.FC<VoiceLevelModalProps> = ({
+  visible,
+  onClose,
+  onLevelSelect,
+}) => {
   return (
     <Modal
       visible={visible}
       transparent={true}
       animationType="slide"
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -38,7 +35,9 @@ const ModalComponent: React.FC<ModalProps> = ({ visible, onRequestClose, onLevel
               onPress={() => onLevelSelect("4_glasa_pravilna")}
               style={styles.modalButton}
             >
-              <Text style={styles.modalButtonText}>4 glasa (pravilna izmjena)</Text>
+              <Text style={styles.modalButtonText}>
+                4 glasa (pravilna izmjena)
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onLevelSelect("4_glasa_konsonantske")}
@@ -63,7 +62,7 @@ const ModalComponent: React.FC<ModalProps> = ({ visible, onRequestClose, onLevel
           </TouchableOpacity>
 
           {/* Full-Width Red Close Button */}
-          <TouchableOpacity onPress={onRequestClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Zatvori</Text>
           </TouchableOpacity>
         </View>
@@ -138,4 +137,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ModalComponent;
+export default VoiceLevelModal;

@@ -1,5 +1,5 @@
+import React, { useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from "react-native";
-import ModalComponent from "./ModalComponent";
+import VoiceLevelModal from "./VoiceLevelModal"; // Import the new modal component
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -19,23 +19,24 @@ export default function HomeScreen() {
     setModalVisible(true);
   };
 
-  const closeModal = () => {    
+  const closeModal = () => {
     setModalVisible(false);
     setSelectedOption("");
   };
 
+  // Reset state when the screen is focused
   useFocusEffect(
-    useCallback(() => {
+    React.useCallback(() => {
       setModalVisible(false);
       setSelectedOption("");
-      console.log("HomeScreen reset on focus.");
     }, [])
   );
 
   const handleLevelSelect = (level: string) => {
+    // Navigate to Challenge Screen with selected type and level
     setModalVisible(false);
     router.push({
-      pathname: "../pages/challangeScreen.tsx",
+      pathname: "/pages/challengeScreen",
       params: {
         type: selectedOption,
         level: level,
@@ -48,16 +49,18 @@ export default function HomeScreen() {
       source={require("../assets/images/background.jpg")}
       style={styles.container}
     >
-      <TouchableOpacity onPress={() => router.back()} style={styles.returnButton}>
+      {/* Return Button */}
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={styles.returnButton}
+      >
         <Text style={styles.returnButtonText}>Povratak</Text>
       </TouchableOpacity>
-
 
       <View style={styles.textContainer}>
         <Text style={styles.tekst}>Izaberi broj nedostajućih</Text>
         <Text style={styles.tekst}>glasova</Text>
       </View>
-
 
       <TouchableOpacity
         onPress={() => handleOptionPress("Prvi Glas")}
@@ -66,14 +69,12 @@ export default function HomeScreen() {
         <Text style={styles.buttonText}>Prvi Glas</Text>
       </TouchableOpacity>
 
-
       <TouchableOpacity
         onPress={() => handleOptionPress("Zadnji Glas")}
         style={[styles.button, styles.button2]}
       >
         <Text style={styles.buttonText}>Zadnji Glas</Text>
       </TouchableOpacity>
-
 
       <TouchableOpacity
         onPress={() => handleOptionPress("Svi Glasovi")}
@@ -82,12 +83,10 @@ export default function HomeScreen() {
         <Text style={styles.buttonText}>Svi Glasovi</Text>
       </TouchableOpacity>
 
-
-      <ModalComponent
+      <VoiceLevelModal
         visible={modalVisible}
-        onRequestClose={closeModal}
+        onClose={closeModal}
         onLevelSelect={handleLevelSelect}
-        selectedOption={selectedOption}
       />
     </ImageBackground>
   );
