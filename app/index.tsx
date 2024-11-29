@@ -9,6 +9,7 @@ import {
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useRouter } from "expo-router";
+import { Pressable } from "react-native";
 
 export default function Index() {
   const router = useRouter();
@@ -22,22 +23,25 @@ export default function Index() {
   }, []);
 
   return (
-
     <ImageBackground
       source={require("../assets/images/greetingScreenPozadina.jpg")}
       style={styles.container}
     >
       <View style={styles.container}>
-        <Image source={require("../assets/images/logo.png")} style={styles.logo}></Image>
-        <TouchableWithoutFeedback onPress={() => {
-          console.log('TouchableWithoutFeedback pressed');
-          router.push("../pages/homeScreen");
-          
-        }}>
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.logo}
+        ></Image>
+        <Pressable
+          onPress={() => {
+            console.log("TouchableWithoutFeedback pressed");
+            router.push("../pages/homeScreen");
+          }}
+        >
           <View style={styles.pocmiTekst}>
             <Text style={styles.tekst}>Dotakni za početak</Text>
           </View>
-        </TouchableWithoutFeedback>
+        </Pressable>
       </View>
     </ImageBackground>
   );

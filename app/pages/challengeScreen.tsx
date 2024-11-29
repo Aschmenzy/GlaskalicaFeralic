@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Levels, rijeci } from "../rijeci";
 import { ImageBackground } from "react-native";
@@ -8,6 +8,10 @@ export default function ChallengeScreen() {
   const router = useRouter();
   const { type, level } = useLocalSearchParams();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [options, setOptions] = useState<string[]>([]);
+  const [remainingLetters, setRemainingLetters] = useState<string[]>([]);
+  const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
+  const [nextRequiredIndex, setNextRequiredIndex] = useState(0);
 
   // Ensure level and type are valid
   if (!level || Array.isArray(level) || !(level in rijeci)) {
@@ -16,51 +20,120 @@ export default function ChallengeScreen() {
 
   const wordList = rijeci[level as Levels];
   const currentWord = wordList[currentIndex];
-  console.log("Current word:", currentWord);
 
   if (!type || Array.isArray(type) || typeof currentWord !== "string") {
     return <Text>Invalid type or word</Text>;
   }
 
+  // Generate challenge word based on the game type
   const generateChallengeWord = () => {
     if (type === "Prvi Glas") {
-      // zamini prvo slovo s "_"
-      return `_ ${currentWord.slice(1)}`;
+      // First letter missing
+      return `_ ${currentWord.slice(1).split("").join(" ")}`;
     } else if (type === "Zadnji Glas") {
-      // zamini zadnje slovo s "_"
-      return `${currentWord.slice(0, -1)} _`;
-    } else if (type === "Svi Glasovi") {
-      // zamini sva slova s  "_"
-      return "_ ".repeat(currentWord.length);
+      // Last letter missing
+      return `${currentWord.slice(0, -1).split("").join(" ")} _`;
     } else {
-      return currentWord;
+      // All letters missing
+      return currentWord
+        .split("")
+        .map((_, index) =>
+          guessedLetters[index] ? guessedLetters[index] : "_"
+        )
+        .join(" ");
     }
   };
 
-  console.log("Type:", type);
-  console.log("Current word:", currentWord);
-  console.log("Generated challenge word:", generateChallengeWord());
+  // Generate options dynamically for the current word
+  React.useEffect(() => {
+    const wordLetters = currentWord.split("");
+    setRemainingLetters([...wordLetters]); // Initialize with all letters
+    setOptions(generateOptions(currentWord, type));
+    setGuessedLetters([]); // Reset guessed letters for a new word
+    setNextRequiredIndex(0); // Reset the required letter index
+  }, [currentWord]);
+
+  const handleOptionPress = (option: string) => {
+    const requiredLetter =
+      type === "Prvi Glas"
+        ? currentWord[0] // First letter is missing
+        : type === "Zadnji Glas"
+        ? currentWord[currentWord.length - 1] // Last letter is missing
+        : remainingLetters[0]; // Sequential guessing (first missing letter)
+
+    if (option === requiredLetter) {
+      // Add correct letter to guessedLetters
+      setGuessedLetters((prev) => [...prev, option]);
+
+      // Remove the first instance of the correct letter from remainingLetters
+      setRemainingLetters((prev) => {
+        const index = prev.indexOf(option);
+        if (index > -1) {
+          const newRemaining = [...prev];
+          newRemaining.splice(index, 1);
+          return newRemaining;
+        }
+        return prev;
+      });
+
+      // Remove the used letter from the options
+      setOptions((prevOptions) =>
+        prevOptions.filter((item) => item !== option)
+      );
+
+      // Check if the word is complete
+      if (
+        type === "Prvi Glas" ||
+        type === "Zadnji Glas" ||
+        remainingLetters.length === 1
+      ) {
+        if (currentIndex < wordList.length - 1) {
+          setCurrentIndex((prev) => prev + 1); // Move to the next word
+        } else {
+          Alert.alert(
+            "Congratulations!",
+            "You've completed all words in this level."
+          );
+          router.back();
+        }
+      }
+    } else if (currentWord.includes(option)) {
+      // If the letter is in the word but out of sequence, do nothing
+      Alert.alert("Hold on!", "That's correct but not in the right order.");
+    } else {
+      // Remove incorrect option
+      setOptions((prevOptions) =>
+        prevOptions.filter((item) => item !== option)
+      );
+      Alert.alert("Wrong!", "Try again.");
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../../assets/images/background.jpg")}
       style={styles.container}
     >
-      <View style={styles.container}>
-        {/* povratak gumb */}
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.returnButton}
-        >
-          <Text style={styles.returnButtonText}>Povratak</Text>
-        </TouchableOpacity>
+      {/* Back button */}
+      <TouchableOpacity
+        onPress={() => router.push("/pages/homeScreen")}
+        style={styles.returnButton}
+      >
+        <Text style={styles.returnButtonText}>Povratak</Text>
+      </TouchableOpacity>
 
-        {/* rijec */}
+      <View style={styles.WordContainer}>
+        {/* Word */}
         <Text style={styles.challengeText}>{generateChallengeWord()}</Text>
 
-        {/* opcije */}
+        {/* Options */}
         <View style={styles.optionsContainer}>
-          {generateOptions(currentWord, type).map((option, index) => (
-            <TouchableOpacity key={index} style={styles.optionButton}>
+          {options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.optionButton}
+              onPress={() => handleOptionPress(option)}
+            >
               <Text style={styles.optionText}>{option}</Text>
             </TouchableOpacity>
           ))}
@@ -71,25 +144,27 @@ export default function ChallengeScreen() {
 }
 
 function generateOptions(word: string, type: string): string[] {
-  const correctLetter =
-    type === "first"
-      ? word[0]
-      : type === "last"
-      ? word[word.length - 1]
-      : word[0];
+  const wordLetters = word.split("");
   const randomLetters = "abcdefghijklmnoprstuvz"
     .split("")
-    .filter((letter) => letter !== correctLetter)
+    .filter((letter) => !wordLetters.includes(letter))
     .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
+    .slice(0, 5); // Add 5 random distractors
 
-  return [correctLetter, ...randomLetters].sort(() => Math.random() - 0.5);
+  const options = [...wordLetters, ...randomLetters];
+  return options.sort(() => Math.random() - 0.5);
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  WordContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
     paddingVertical: 30,
   },
@@ -98,29 +173,36 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 30,
-    color: "black",
+    color: "navy",
   },
   optionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     marginTop: 20,
-    width: "100%",
+    width: "90%",
   },
   optionButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 15,
+    backgroundColor: "rgba(155, 210, 255, 0.8)",
+    padding: 20,
     margin: 10,
-    borderRadius: 8,
-    width: "15%",
+    borderRadius: 50,
+    width: 80,
+    height: 80,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // For Android shadow
   },
   optionText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 24,
+    fontWeight: "bold",
     textAlign: "center",
-  }, // Styles for Return Button
+  },
   returnButton: {
     position: "absolute",
     top: 5,

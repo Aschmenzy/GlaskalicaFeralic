@@ -16,7 +16,11 @@ export default function HomeScreen() {
 
   const handleOptionPress = (option: string) => {
     setSelectedOption(option);
-    setModalVisible(true);
+    try {
+      setModalVisible(true);
+    } catch (e) {
+      console.error("modal opend", e);
+    }
   };
 
   const closeModal = () => {
@@ -51,7 +55,7 @@ export default function HomeScreen() {
     >
       {/* Return Button */}
       <TouchableOpacity
-        onPress={() => router.back()}
+        onPress={() => router.push("/")}
         style={styles.returnButton}
       >
         <Text style={styles.returnButtonText}>Povratak</Text>
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
   },
   tekst: {
     textAlign: "center",
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     color: "black",
   },
